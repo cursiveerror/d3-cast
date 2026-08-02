@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/banner.svg" alt="D3 Cast Banner" width="100%">
+  <img src="assets/banner.svg" alt="D3 Cast Banner" width="80%">
   <br><br>
   
   <b>Мінімалістичний, швидкий та повністю відкритий погодний дашборд, натхненний естетикою Metro UI.</b>
