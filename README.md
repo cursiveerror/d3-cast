@@ -3,7 +3,6 @@
   
   <br><br>
   
-  # D3 Cast
   **Стильний, швидкий та повністю відкритий дашборд погоди у стилі Metro UI.**
 
   [![GitHub license](https://img.shields.io/github/license/cursiveerror/d3-cast?style=for-the-badge&color=00ABA9)](https://github.com/cursiveerror/d3-cast/blob/main/LICENSE)
@@ -12,7 +11,6 @@
   [![Open-Meteo](https://img.shields.io/badge/API-Open--Meteo-00A300?style=for-the-badge)](https://open-meteo.com/)
   
   <br><br>
-
   [![Відкрити дашборд](https://img.shields.io/badge/Відкрити_Сайт-2D89EF?style=for-the-badge&logo=google-chrome&logoColor=white)](https://cursiveerror.github.io/d3-cast/)
 </div>
 
