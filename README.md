@@ -39,24 +39,6 @@
 - **CSS3** (CSS Grid, Flexbox, CSS Variables, Animations)
 - **Vanilla JavaScript** (ES6+, Fetch API, LocalStorage, Service Workers, Notifications API)
 
-## 🚀 Встановлення локально
-
-Якщо хочеш запустити проєкт локально або зробити свій форк:
-
-1. Клонуй репозиторій:
-   ```bash
-   git clone https://github.com/cursiveerror/d3-cast.git
-   ```
-2. Відкрий папку проєкту:
-   ```bash
-   cd d3-cast
-   ```
-3. Запусти через будь-який локальний сервер (наприклад, Live Server у VS Code або через Python):
-   ```bash
-   python -m http.server 8000
-   ```
-4. Відкрий у браузері `http://localhost:8000` (порт може відрізнятися).
-
 ## 🤝 Контрибуція
 
 D3 Cast — це проєкт з відкритим вихідним кодом. Запрошую всіх охочих приєднуватися! Роби форк, створюй Pull Request або відкривай Issue, якщо знайшов баг. 
