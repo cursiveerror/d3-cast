@@ -1,0 +1,22 @@
+{
+  "name": "D3 Cast / Dashboard",
+  "short_name": "D3 Cast",
+  "description": "Metro UI Weather Dashboard",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1E1E1E",
+  "theme_color": "#1E1E1E",
+  "icons": [
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

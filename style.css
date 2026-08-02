@@ -1,0 +1,534 @@
+:root {
+    --text-main: #FFFFFF;
+    --text-muted: rgba(255, 255, 255, 0.7);
+    
+    /* Metro UI Colors */
+    --metro-blue: #2D89EF;
+    --metro-green: #00A300;
+    --metro-red: #E51400;
+    --metro-orange: #E3A21A;
+    --metro-purple: #603CBC;
+    --metro-teal: #00ABA9;
+    --metro-dark: #1E1E1E;
+    
+    --font-heading: 'Montserrat', sans-serif;
+    --font-main: 'Inter', 'Segoe UI', sans-serif;
+    --gap: 8px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-main);
+    color: var(--text-main);
+    background-color: var(--bg-main);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.8s ease, color 0.8s ease;
+}
+
+/* --- Погодні теми (Dynamic Metro Themes) --- */
+
+/* weather-clear (ясно/сонячно) — яскраві, глибокі сині відтінки */
+body.weather-clear {
+    --bg-main: #004e92;
+    --metro-blue: #0078D7;
+    --metro-teal: #00CC6A;
+    --metro-orange: #FF8C00;
+    --metro-purple: #744DA9;
+    --metro-dark: #003666;
+}
+
+/* weather-cloudy (похмуро) — матові, сіро-сині, приглушені тони */
+body.weather-cloudy {
+    --bg-main: #37474F;
+    --metro-blue: #546E7A;
+    --metro-teal: #455A64;
+    --metro-orange: #78909C;
+    --metro-purple: #607D8B;
+    --metro-dark: #263238;
+}
+
+/* weather-rain (дощ) — дуже темні, глибокі нічні/сизі кольори */
+body.weather-rain {
+    --bg-main: #1A237E;
+    --metro-blue: #283593;
+    --metro-teal: #303F9F;
+    --metro-orange: #3949AB;
+    --metro-purple: #3F51B5;
+    --metro-dark: #0F1446;
+}
+
+/* weather-storm (гроза) — майже чорний фон з різкими неоновими акцентами */
+body.weather-storm {
+    --bg-main: #0a0a0a;
+    --metro-blue: #311B92;
+    --metro-teal: #4527A0;
+    --metro-orange: #00E676; /* Неоновий акцент */
+    --metro-purple: #651FFF;
+    --metro-dark: #000000;
+}
+
+/* weather-snow (сніг) — холодні, блідо-блакитні та білі відтінки */
+body.weather-snow {
+    --bg-main: #E0F7FA;
+    --metro-blue: #81D4FA;
+    --metro-teal: #4DD0E1;
+    --metro-orange: #29B6F6;
+    --metro-purple: #B3E5FC;
+    --metro-dark: #B2EBF2;
+    --text-main: #004D40; /* Темний текст для світлого фону */
+}
+
+/* is-night (нічний режим) — робимо фон чорним, щоб не било по очах, але зберігаємо яскравість плиток (справжній Metro UI стиль) */
+body.is-night {
+    --bg-main: #000000 !important;
+    --metro-dark: #111111 !important;
+    --text-main: #F2F2F2 !important; /* Трохи приглушений білий, але не сірий */
+}
+
+.app-container {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    z-index: 10;
+}
+
+/* Header */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+h1 {
+    font-family: var(--font-heading);
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+.icon-btn:active {
+    transform: scale(0.9);
+}
+
+.tile-btn {
+    background: transparent;
+    border: 2px solid var(--text-main);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.tile-btn:hover {
+    background: var(--text-main);
+    color: #111;
+}
+
+.btn-primary {
+    background: var(--metro-blue);
+    border-color: var(--metro-blue);
+}
+.btn-primary:hover {
+    background: #111;
+    color: var(--metro-blue);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Sidebar */
+.overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
+}
+.sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 300px;
+    background: var(--metro-dark);
+    z-index: 100;
+    padding: 20px;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+}
+.sidebar.open {
+    transform: translateX(0);
+}
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+.sidebar-header h2 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+}
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.nav-item {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    padding: 15px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: background 0.2s;
+}
+.nav-item:hover, .nav-item.active {
+    background: var(--metro-blue);
+}
+
+/* Typography & Titles */
+.section-title {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
+/* Metro Grid */
+.metro-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 150px;
+    gap: var(--gap);
+}
+@media (max-width: 600px) {
+    .metro-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .temp-huge {
+        font-size: 4.5rem;
+    }
+}
+
+/* Live Tile Flip Animation Setup */
+.tile {
+    position: relative;
+    color: var(--text-main);
+    cursor: default;
+    perspective: 1000px; /* Для 3D фліпу */
+}
+
+/* Внутрішній контейнер для фліпу */
+.tile-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+}
+
+/* Клас, який додається JS для перегортання */
+.tile.flipped .tile-inner {
+    transform: rotateX(180deg);
+}
+
+.tile-front, .tile-back {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.tile-back {
+    transform: rotateX(180deg);
+    background-color: inherit;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* Make live tile container transparent so background doesn't show during flip */
+.tile.live {
+    background-color: transparent !important;
+}
+
+/* Standard tile padding (if not live) */
+.tile:not(.live) {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.1s;
+}
+.tile:not(.live):active {
+    transform: scale(0.98);
+}
+
+.tile-label {
+    position: absolute;
+    bottom: 12px;
+    left: 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: lowercase;
+}
+
+/* Tile Sizes */
+.tile-large { grid-column: span 2; grid-row: span 2; }
+.tile-wide { grid-column: span 2; grid-row: span 1; }
+.tile-tall { grid-column: span 1; grid-row: span 2; }
+.tile-full { grid-column: 1 / -1; grid-row: span 1; }
+
+/* Colors */
+.tile-blue { background-color: var(--metro-blue); }
+.tile-blue .tile-front, .tile-blue .tile-back { background-color: var(--metro-blue); }
+.tile-green { background-color: var(--metro-green); }
+.tile-green .tile-front, .tile-green .tile-back { background-color: var(--metro-green); }
+.tile-red { background-color: var(--metro-red); }
+.tile-orange { background-color: var(--metro-orange); }
+.tile-orange .tile-front, .tile-orange .tile-back { background-color: var(--metro-orange); }
+.tile-purple { background-color: var(--metro-purple); }
+.tile-teal { background-color: var(--metro-teal); }
+.tile-teal .tile-front, .tile-teal .tile-back { background-color: var(--metro-teal); }
+.tile-dark { background-color: var(--metro-dark); }
+
+/* Tile Content specific */
+.temp-huge {
+    font-size: 6rem;
+    font-weight: 300;
+    line-height: 1;
+    margin-top: 10px;
+}
+.city-name {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 5px;
+}
+.data-value {
+    font-size: 2.5rem;
+    font-weight: 300;
+    line-height: 1.2;
+    margin-top: 10px;
+}
+.data-unit {
+    font-size: 1rem;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+/* Hourly Forecast Container */
+.hourly-container {
+    display: flex;
+    gap: var(--gap);
+    overflow-x: auto;
+    height: 100%;
+    padding-bottom: 5px;
+}
+.hourly-container::-webkit-scrollbar { height: 6px; }
+.hourly-container::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); }
+.hour-tile {
+    min-width: 80px;
+    background-color: rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+.hour-time { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
+.hour-temp { font-size: 1.5rem; font-weight: 300; }
+
+/* Search Box */
+.search-tile {
+    display: flex;
+    height: 60px;
+    margin-bottom: var(--gap);
+    padding: 0 !important;
+}
+.search-tile input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 0 20px;
+    color: var(--text-main);
+    font-family: var(--font-main);
+    font-size: 1.2rem;
+    outline: none;
+}
+.search-tile input::placeholder { color: rgba(255,255,255,0.6); }
+.search-tile button {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    padding: 0 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.search-tile button:hover { background: rgba(0,0,0,0.2); }
+
+/* Search Results */
+.results-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.results-list li {
+    background-color: var(--metro-dark);
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+.results-list li:hover { background-color: var(--metro-teal); }
+.result-name { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 600; }
+.result-admin { text-align: left; font-size: 0.9rem; opacity: 0.7; }
+.error-tile { padding: 16px 20px; margin-top: var(--gap); font-weight: 600; }
+
+/* Notifications Form */
+.notification-card {
+    padding: 30px !important;
+}
+.description {
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.form-group label {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+.metro-select, .metro-input {
+    background-color: rgba(255,255,255,0.1);
+    border: 2px solid transparent;
+    color: var(--text-main);
+    padding: 12px 16px;
+    font-family: var(--font-main);
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.2s;
+    width: 100%;
+}
+
+/* Custom arrow for select */
+.metro-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+}
+.metro-select option {
+    background: var(--metro-dark);
+}
+.metro-select:focus, .metro-input:focus {
+    border-color: var(--metro-blue);
+}
+
+/* Робимо стандартну чорну іконку годинника білою */
+.metro-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+/* About Section */
+.about-card {
+    padding: 30px !important;
+    text-align: left;
+}
+.about-subtitle {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 20px 0 10px 0;
+    color: var(--metro-blue);
+}
+.about-list {
+    list-style-type: square;
+    margin-left: 20px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    opacity: 0.9;
+}
+.about-list li {
+    margin-bottom: 8px;
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 16px 20px;
+    font-weight: 600;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Loader */
+.loader-wrapper {
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    grid-column: 1 / -1; grid-row: span 2; background-color: var(--metro-dark);
+}
+.metro-loader { display: flex; gap: 8px; margin-bottom: 20px; }
+.dot {
+    width: 10px; height: 10px; border-radius: 50%; background-color: var(--text-main);
+    animation: metro-bounce 1.5s infinite ease-in-out;
+}
+.dot:nth-child(1) { animation-delay: -0.3s; }
+.dot:nth-child(2) { animation-delay: -0.15s; }
+@keyframes metro-bounce {
+    0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+    40% { transform: scale(1); opacity: 1; }
+}
