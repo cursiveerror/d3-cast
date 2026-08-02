@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/banner.svg" alt="D3 Cast Banner" width="80%">
+  <img src="assets/banner.svg" alt="D3 Cast Banner" width="100%">
   <br><br>
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-00ABA9?style=for-the-badge)](https://github.com/cursiveerror/d3-cast/blob/main/LICENSE)
