@@ -9,7 +9,6 @@
   [![GitHub stars](https://img.shields.io/github/stars/cursiveerror/d3-cast?style=for-the-badge&color=E3A21A)](https://github.com/cursiveerror/d3-cast/stargazers)
   [![PWA Ready](https://img.shields.io/badge/PWA-Ready-2D89EF?style=for-the-badge&logo=pwa)](https://cursiveerror.github.io/d3-cast/)
   [![Open-Meteo](https://img.shields.io/badge/API-Open--Meteo-00A300?style=for-the-badge)](https://open-meteo.com/)
-  
   <br><br>
   [![Відкрити дашборд](https://img.shields.io/badge/Відкрити_Сайт-2D89EF?style=for-the-badge&logo=google-chrome&logoColor=white)](https://cursiveerror.github.io/d3-cast/)
 </div>
