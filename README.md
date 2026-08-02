@@ -1,8 +1,6 @@
 <div align="center">
   <img src="assets/banner.svg" alt="D3 Cast Banner" width="100%">
-  
   <br><br>
-  
   **Стильний, швидкий та повністю відкритий дашборд погоди у стилі Metro UI.**
 
   [![GitHub license](https://img.shields.io/github/license/cursiveerror/d3-cast?style=for-the-badge&color=00ABA9)](https://github.com/cursiveerror/d3-cast/blob/main/LICENSE)
