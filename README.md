@@ -1,5 +1,6 @@
 <div align="center">
-  <img src="assets/banner.svg" alt="D3 Cast Banner" width="80%">
+  <img src="assets/banner.svg" alt="D3 Cast Banner" width="100%">
+  <br><br>
   [![GitHub license](https://img.shields.io/github/license/cursiveerror/d3-cast?style=for-the-badge&color=00ABA9)](https://github.com/cursiveerror/d3-cast/blob/main/LICENSE)
   [![GitHub stars](https://img.shields.io/github/stars/cursiveerror/d3-cast?style=for-the-badge&color=E3A21A)](https://github.com/cursiveerror/d3-cast/stargazers)
   [![PWA Ready](https://img.shields.io/badge/PWA-Ready-2D89EF?style=for-the-badge&logo=pwa)](https://cursiveerror.github.io/d3-cast/)
