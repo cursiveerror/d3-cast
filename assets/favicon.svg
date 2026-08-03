@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
-  <path d="M 250 18.587 C 250 18.587 426.214 194.801 426.214 304.935 C 426.214 440.585 279.368 525.366 161.893 457.541 C 107.372 426.063 73.786 367.891 73.786 304.935 C 73.786 194.801 250 18.587 250 18.587 Z" fill="#2A81EA" style=""/>
-  <text x="241.484" y="339.474" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif" font-weight="900" font-size="180" letter-spacing="-5" style="white-space: pre; font-size: 223.4px;" transform="matrix(0.941644, 0, 0, 1.081453, 25.402694, -44.724992)">D3</text>
+  <g style="" transform="matrix(0.828778, 0, 0, 0.828778, 42.805517, 42.805829)">
+    <path d="M 250 18.587 C 250 18.587 426.214 194.801 426.214 304.935 C 426.214 440.585 279.368 525.366 161.893 457.541 C 107.372 426.063 73.786 367.891 73.786 304.935 C 73.786 194.801 250 18.587 250 18.587 Z" fill="#2A81EA" style=""/>
+    <text x="241.484" y="339.474" text-anchor="middle" dominant-baseline="middle" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif" font-weight="900" font-size="180" letter-spacing="-5" style="white-space: pre; font-size: 223.4px;" transform="matrix(0.960435, 0, 0, 0.974196, 21.345812, -1.989071)">D3</text>
+  </g>
 </svg>
