@@ -355,27 +355,31 @@ h1 {
     opacity: 0.8;
 }
 
-/* Hourly Forecast Container */
-.hourly-container {
+/* Daily Forecast Container */
+.daily-container {
     display: flex;
     gap: var(--gap);
     overflow-x: auto;
     height: 100%;
     padding-bottom: 5px;
 }
-.hourly-container::-webkit-scrollbar { height: 6px; }
-.hourly-container::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); }
-.hour-tile {
-    min-width: 80px;
+.daily-container::-webkit-scrollbar { height: 6px; }
+.daily-container::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); }
+.day-tile {
+    min-width: 120px;
     background-color: rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 10px;
+    text-align: center;
 }
-.hour-time { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
-.hour-temp { font-size: 1.5rem; font-weight: 300; }
+.day-name { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+.day-desc { font-size: 0.8rem; font-weight: 400; opacity: 0.8; margin-bottom: 8px; min-height: 28px; display: flex; align-items: center; }
+.day-temps { display: flex; gap: 8px; font-size: 1.2rem; font-weight: 600; }
+.day-max { color: var(--text-main); }
+.day-min { color: var(--text-muted); }
 
 /* Search Box */
 .search-tile {
@@ -413,14 +417,32 @@ h1 {
     cursor: pointer;
     transition: background 0.2s;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+    justify-content: space-between;
+    align-items: center;
 }
 .results-list li:hover { background-color: var(--metro-teal); }
+.result-info { display: flex; flex-direction: column; gap: 4px; }
 .result-name { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 600; }
 .result-admin { text-align: left; font-size: 0.9rem; opacity: 0.7; }
 .error-tile { padding: 16px 20px; margin-top: var(--gap); font-weight: 600; }
+
+.star-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, color 0.2s;
+}
+.star-btn:hover {
+    transform: scale(1.2);
+}
+.star-btn.active {
+    color: var(--metro-orange);
+}
 
 /* Notifications Form */
 .notification-card {

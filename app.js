@@ -1,5 +1,6 @@
 const searchSection = document.getElementById('search-section');
 const weatherSection = document.getElementById('weather-section');
+const favoritesSection = document.getElementById('favorites-section');
 const notificationsSection = document.getElementById('notifications-section');
 const formatSection = document.getElementById('format-section');
 const aboutSection = document.getElementById('about-section');
@@ -9,6 +10,10 @@ const searchBtn = document.getElementById('search-btn');
 const searchResults = document.getElementById('search-results');
 const searchError = document.getElementById('search-error');
 const changeLocationBtn = document.getElementById('change-location-btn');
+const favoritesList = document.getElementById('favorites-list');
+const historyList = document.getElementById('history-list');
+const favoritesEmpty = document.getElementById('favorites-empty');
+const historyEmpty = document.getElementById('history-empty');
 
 // Sidebar Elements
 const burgerBtn = document.getElementById('burger-btn');
@@ -34,6 +39,8 @@ const saveFormatBtn = document.getElementById('save-format-btn');
 const STORAGE_KEY = 'metro_weather_location';
 const NOTIF_STORAGE_KEY = 'metro_weather_notif';
 const FORMAT_STORAGE_KEY = 'metro_data_format';
+const HISTORY_STORAGE_KEY = 'metro_weather_history';
+const FAVORITES_STORAGE_KEY = 'metro_weather_favorites';
 
 // Global variables for live tiles & notifications
 let liveTileInterval;
@@ -83,6 +90,9 @@ function setupNavigation() {
                 } else {
                     showSection('search-section');
                 }
+            } else if (target === 'favorites-section') {
+                renderFavoritesSection();
+                showSection(target);
             } else {
                 showSection(target);
             }
@@ -102,6 +112,7 @@ function setupNavigation() {
 function showSection(sectionId) {
     searchSection.classList.add('hidden');
     weatherSection.classList.add('hidden');
+    favoritesSection.classList.add('hidden');
     notificationsSection.classList.add('hidden');
     formatSection.classList.add('hidden');
     aboutSection.classList.add('hidden');
@@ -109,7 +120,7 @@ function showSection(sectionId) {
 
     document.getElementById(sectionId).classList.remove('hidden');
 
-    if (sectionId === 'weather-section' || sectionId === 'notifications-section' || sectionId === 'about-section' || sectionId === 'format-section') {
+    if (sectionId === 'weather-section' || sectionId === 'notifications-section' || sectionId === 'about-section' || sectionId === 'format-section' || sectionId === 'favorites-section') {
         changeLocationBtn.classList.remove('hidden');
     }
 }
@@ -175,46 +186,137 @@ function renderSearchResults(results) {
     }
 
     results.forEach(item => {
-        const li = document.createElement('li');
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'result-name';
-        nameSpan.textContent = item.name;
-
-        const adminSpan = document.createElement('span');
-        adminSpan.className = 'result-admin';
-
-        // Виправляємо "Чернігівська" на "Чернігівська область"
         let admin1 = item.admin1;
         if (admin1 && admin1.endsWith('ська') && !admin1.toLowerCase().includes('область')) {
             admin1 += ' область';
         }
-
         const adminParts = [admin1, item.admin2].filter(Boolean);
-        adminSpan.textContent = adminParts.length > 0 ? adminParts.join(', ') : 'Україна';
+        const locationData = {
+            name: item.name,
+            latitude: item.latitude,
+            longitude: item.longitude,
+            admin: adminParts.length > 0 ? adminParts[0] : 'Україна',
+            subtitle: adminParts.length > 0 ? adminParts.join(', ') : 'Україна'
+        };
 
-        li.appendChild(nameSpan);
-        li.appendChild(adminSpan);
-
-        li.addEventListener('click', () => {
-            const subtitle = adminParts.length > 0 ? adminParts.join(', ') : 'Україна';
-            const locationData = {
-                name: item.name,
-                latitude: item.latitude,
-                longitude: item.longitude,
-                admin: adminParts.length > 0 ? adminParts[0] : 'Україна',
-                subtitle: subtitle
-            };
-            saveLocationAndFetchWeather(locationData);
-        });
-
+        const li = createLocationListItem(locationData);
         searchResults.appendChild(li);
     });
 }
 
 function saveLocationAndFetchWeather(location) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(location));
+    addToHistory(location);
     showSection('weather-section');
     fetchWeather(location);
+}
+
+// --- Favorites and History Logic ---
+function getFavorites() {
+    return JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY)) || [];
+}
+
+function saveFavorites(favorites) {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+}
+
+function toggleFavorite(locationData) {
+    let favorites = getFavorites();
+    const index = favorites.findIndex(f => f.latitude === locationData.latitude && f.longitude === locationData.longitude);
+    if (index > -1) {
+        favorites.splice(index, 1);
+    } else {
+        favorites.push(locationData);
+    }
+    saveFavorites(favorites);
+}
+
+function isFavorite(locationData) {
+    const favorites = getFavorites();
+    return favorites.some(f => f.latitude === locationData.latitude && f.longitude === locationData.longitude);
+}
+
+function getHistory() {
+    return JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY)) || [];
+}
+
+function addToHistory(locationData) {
+    let history = getHistory();
+    history = history.filter(h => h.latitude !== locationData.latitude || h.longitude !== locationData.longitude);
+    history.unshift(locationData);
+    if (history.length > 10) history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+}
+
+function createLocationListItem(locationData) {
+    const li = document.createElement('li');
+    
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'result-info';
+    
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'result-name';
+    nameSpan.textContent = locationData.name;
+
+    const adminSpan = document.createElement('span');
+    adminSpan.className = 'result-admin';
+    adminSpan.textContent = locationData.subtitle;
+    
+    infoDiv.appendChild(nameSpan);
+    infoDiv.appendChild(adminSpan);
+
+    const starBtn = document.createElement('button');
+    starBtn.className = 'star-btn';
+    if (isFavorite(locationData)) starBtn.classList.add('active');
+    
+    const starSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${isFavorite(locationData) ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>`;
+    starBtn.innerHTML = starSvg;
+    
+    starBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFavorite(locationData);
+        
+        // Оновлюємо вигляд кнопки
+        const isFav = isFavorite(locationData);
+        starBtn.classList.toggle('active', isFav);
+        starBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>`;
+        
+        // Якщо ми знаходимося на вкладці Обраних, потрібно перемалювати списки
+        if (!favoritesSection.classList.contains('hidden')) {
+            renderFavoritesSection();
+        }
+    });
+
+    li.appendChild(infoDiv);
+    li.appendChild(starBtn);
+
+    li.addEventListener('click', () => {
+        saveLocationAndFetchWeather(locationData);
+    });
+    
+    return li;
+}
+
+function renderFavoritesSection() {
+    favoritesList.innerHTML = '';
+    historyList.innerHTML = '';
+    
+    const favorites = getFavorites();
+    const history = getHistory();
+    
+    if (favorites.length === 0) {
+        favoritesEmpty.classList.remove('hidden');
+    } else {
+        favoritesEmpty.classList.add('hidden');
+        favorites.forEach(loc => favoritesList.appendChild(createLocationListItem(loc)));
+    }
+    
+    if (history.length === 0) {
+        historyEmpty.classList.remove('hidden');
+    } else {
+        historyEmpty.classList.add('hidden');
+        history.forEach(loc => historyList.appendChild(createLocationListItem(loc)));
+    }
 }
 
 // --- Weather Fetch & Render ---
@@ -236,9 +338,9 @@ async function fetchWeather(location) {
             latitude: location.latitude,
             longitude: location.longitude,
             current: 'temperature_2m,apparent_temperature,wind_speed_10m,relative_humidity_2m,pressure_msl,weather_code,is_day',
-            hourly: 'temperature_2m',
+            daily: 'weather_code,temperature_2m_max,temperature_2m_min',
             timezone: 'auto',
-            forecast_days: 2,
+            forecast_days: 7,
             temperature_unit: formatSettings.temp === 'fahrenheit' ? 'fahrenheit' : 'celsius',
             wind_speed_unit: formatSettings.wind
         });
@@ -293,7 +395,7 @@ function setWeatherTheme(weathercode, isDay) {
 }
 
 function renderWeather(location, data) {
-    const { current, hourly } = data;
+    const { current, daily } = data;
 
     let formatSettings = { temp: 'celsius', wind: 'kmh', pressure: 'hpa' };
     const savedFormat = localStorage.getItem(FORMAT_STORAGE_KEY);
@@ -333,29 +435,36 @@ function renderWeather(location, data) {
     if (formatSettings.wind === 'ms') windUnitLabel = 'м/с';
     if (formatSettings.wind === 'mph') windUnitLabel = 'mph';
 
-    // Hourly
-    const now = new Date();
-    let startIndex = 0;
-    for (let i = 0; i < hourly.time.length; i++) {
-        const hourTime = new Date(hourly.time[i]);
-        if (hourTime >= now || Math.abs(hourTime - now) < 3600000) {
-            startIndex = i;
-            break;
+    // Daily Forecast
+    const dailyHtmlArray = [];
+    const daysOfWeek = ['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+    
+    for (let i = 0; i < daily.time.length; i++) {
+        const dateObj = new Date(daily.time[i]);
+        let dayName = daysOfWeek[dateObj.getDay()];
+        if (i === 0) dayName = 'Сьогодні';
+        else if (i === 1) dayName = 'Завтра';
+        
+        let maxTempRaw = daily.temperature_2m_max[i];
+        let minTempRaw = daily.temperature_2m_min[i];
+        
+        if (formatSettings.temp === 'kelvin') {
+            maxTempRaw += 273.15;
+            minTempRaw += 273.15;
         }
-    }
-
-    const hourlyHtmlArray = [];
-    for (let i = startIndex; i < startIndex + 12 && i < hourly.time.length; i++) {
-        const timeObj = new Date(hourly.time[i]);
-        const hours = timeObj.getHours().toString().padStart(2, '0');
-        let tempVal = hourly.temperature_2m[i];
-        if (formatSettings.temp === 'kelvin') tempVal += 273.15;
-        const temp = Math.round(tempVal);
-        const displayTime = (i === startIndex) ? 'Зараз' : `${hours}:00`;
-        hourlyHtmlArray.push(`
-            <div class="hour-tile">
-                <span class="hour-time">${displayTime}</span>
-                <span class="hour-temp">${temp}${tempSymbol}</span>
+        
+        const maxTemp = Math.round(maxTempRaw);
+        const minTemp = Math.round(minTempRaw);
+        const desc = getWeatherDescriptionText(daily.weather_code[i]);
+        
+        dailyHtmlArray.push(`
+            <div class="day-tile">
+                <span class="day-name">${dayName}</span>
+                <span class="day-desc">${desc}</span>
+                <div class="day-temps">
+                    <span class="day-max">${maxTemp}${tempSymbol}</span>
+                    <span class="day-min" style="opacity:0.6;">${minTemp}${tempSymbol}</span>
+                </div>
             </div>
         `);
     }
@@ -366,6 +475,8 @@ function renderWeather(location, data) {
 
     const condition = getWeatherCondition(current.weather_code);
 
+    const currentConditionText = getWeatherDescriptionText(current.weather_code);
+
     // Main tile has front (temp) and back (humidity/pressure)
     const html = `
         <!-- Main Live Tile -->
@@ -374,6 +485,7 @@ function renderWeather(location, data) {
                 <div class="tile-front">
                     <span class="tile-label">поточна погода</span>
                     <div class="city-name">${location.name}</div>
+                    <div style="font-size: 1.2rem; font-weight: 400; opacity: 0.9; margin-top: 5px;">${currentConditionText}</div>
                     <div class="temp-huge">${currentTemp}${tempSymbol}</div>
                     <div style="margin-top: 10px; opacity: 0.8;">${locationSubtitle}</div>
                 </div>
@@ -403,11 +515,11 @@ function renderWeather(location, data) {
             </div>
         </div>
         
-        <!-- Hourly Forecast Tile -->
+        <!-- Daily Forecast Tile -->
         <div class="tile tile-full tile-purple" style="padding: 0;">
-            <div style="padding: 16px 16px 8px 16px; font-weight: 600; font-size: 0.85rem; text-transform: lowercase;">прогноз на 12 годин</div>
-            <div class="hourly-container">
-                ${hourlyHtmlArray.join('')}
+            <div style="padding: 16px 16px 8px 16px; font-weight: 600; font-size: 0.85rem; text-transform: lowercase;">прогноз на 7 днів</div>
+            <div class="daily-container">
+                ${dailyHtmlArray.join('')}
             </div>
         </div>
     `;
@@ -562,6 +674,23 @@ function getWeatherCondition(code) {
     if ((code >= 71 && code <= 77) || code === 85 || code === 86) return { bgClass: 'tile-blue' };
     if (code >= 95 && code <= 99) return { bgClass: 'tile-dark' };
     return { bgClass: 'tile-blue' };
+}
+
+function getWeatherDescriptionText(code) {
+    if (code === 0) return 'Ясно';
+    if (code === 1) return 'Переважно ясно';
+    if (code === 2) return 'Мінлива хмарність';
+    if (code === 3) return 'Похмуро';
+    if (code === 45 || code === 48) return 'Туман';
+    if (code >= 51 && code <= 55) return 'Мряка';
+    if (code >= 56 && code <= 57) return 'Крижана мряка';
+    if (code >= 61 && code <= 65) return 'Дощ';
+    if (code >= 66 && code <= 67) return 'Крижаний дощ';
+    if (code >= 71 && code <= 77) return 'Снігопад';
+    if (code >= 80 && code <= 82) return 'Злива';
+    if (code === 85 || code === 86) return 'Сильний сніг';
+    if (code >= 95 && code <= 99) return 'Гроза';
+    return 'Невідомо';
 }
 
 function showError(message) {
