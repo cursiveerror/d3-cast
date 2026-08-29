@@ -327,7 +327,7 @@ async function fetchWeather(location) {
                 <div class="metro-loader">
                     <div class="dot"></div><div class="dot"></div><div class="dot"></div>
                 </div>
-                <h2>Отримання даних</h2>
+                <h2>Отримання метеоданих</h2>
             </div>`;
 
         let formatSettings = { temp: 'celsius', wind: 'kmh', pressure: 'hpa' };
@@ -337,8 +337,9 @@ async function fetchWeather(location) {
         const params = new URLSearchParams({
             latitude: location.latitude,
             longitude: location.longitude,
-            current: 'temperature_2m,apparent_temperature,wind_speed_10m,relative_humidity_2m,pressure_msl,weather_code,is_day',
-            daily: 'weather_code,temperature_2m_max,temperature_2m_min',
+            current: 'temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m,relative_humidity_2m,pressure_msl,weather_code,is_day,precipitation,uv_index',
+            hourly: 'temperature_2m,weather_code,is_day,precipitation_probability',
+            daily: 'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_probability_max,precipitation_sum',
             timezone: 'auto',
             forecast_days: 7,
             temperature_unit: formatSettings.temp === 'fahrenheit' ? 'fahrenheit' : 'celsius',
@@ -385,17 +386,16 @@ function setWeatherTheme(weathercode, isDay) {
     } else if (weathercode >= 95 && weathercode <= 99) {
         body.classList.add('weather-storm');
     } else {
-        body.classList.add('weather-clear'); // фолбек
+        body.classList.add('weather-clear');
     }
 
-    // Нічний режим: додаємо додатковий клас, який перекриє кольори найтемнішими варіантами
     if (isDay === 0) {
         body.classList.add('is-night');
     }
 }
 
 function renderWeather(location, data) {
-    const { current, daily } = data;
+    const { current, daily, hourly } = data;
 
     let formatSettings = { temp: 'celsius', wind: 'kmh', pressure: 'hpa' };
     const savedFormat = localStorage.getItem(FORMAT_STORAGE_KEY);
@@ -420,9 +420,14 @@ function renderWeather(location, data) {
     const feelsLikeTemp = Math.round(feelsLikeTempRaw);
 
     const windSpeed = current.wind_speed_10m.toFixed(1);
-    const humidity = current.relative_humidity_2m;
+    const windGusts = current.wind_gusts_10m ? current.wind_gusts_10m.toFixed(1) : null;
+    const windDirectionDeg = current.wind_direction_10m || 0;
+    const windDirectionText = getWindDirection(windDirectionDeg);
 
-    let pressure = current.pressure_msl;
+    const humidity = current.relative_humidity_2m;
+    const humidityStatus = getHumidityDescription(humidity);
+
+    let pressure = current.pressure_msl || 1013;
     let pressureUnit = 'hPa';
     if (formatSettings.pressure === 'mmhg') {
         pressure = Math.round(pressure * 0.750062);
@@ -430,94 +435,224 @@ function renderWeather(location, data) {
     } else {
         pressure = Math.round(pressure);
     }
+    const pressureStatus = getPressureDescription(current.pressure_msl || 1013);
 
     let windUnitLabel = 'км/год';
     if (formatSettings.wind === 'ms') windUnitLabel = 'м/с';
     if (formatSettings.wind === 'mph') windUnitLabel = 'mph';
 
-    // Daily Forecast
+    // UV index
+    const uvVal = current.uv_index !== undefined ? current.uv_index : (daily.uv_index_max ? daily.uv_index_max[0] : 0);
+    const uvInfo = getUvDescription(Math.round(uvVal));
+
+    // Sun cycle
+    const sunriseTime = daily.sunrise && daily.sunrise[0] ? formatTimeShort(daily.sunrise[0]) : '--:--';
+    const sunsetTime = daily.sunset && daily.sunset[0] ? formatTimeShort(daily.sunset[0]) : '--:--';
+
+    // Today min/max
+    let todayMaxRaw = daily.temperature_2m_max[0];
+    let todayMinRaw = daily.temperature_2m_min[0];
+    if (formatSettings.temp === 'kelvin') {
+        todayMaxRaw += 273.15;
+        todayMinRaw += 273.15;
+    }
+    const todayMax = Math.round(todayMaxRaw);
+    const todayMin = Math.round(todayMinRaw);
+
+    // Hourly Forecast (next 16 hours)
+    const hourlyHtmlArray = [];
+    if (hourly && hourly.time) {
+        const nowHourStr = new Date().toISOString().slice(0, 13);
+        let startIdx = hourly.time.findIndex(t => t.startsWith(nowHourStr));
+        if (startIdx === -1) startIdx = 0;
+        const endIdx = Math.min(startIdx + 16, hourly.time.length);
+
+        for (let i = startIdx; i < endIdx; i++) {
+            const t = new Date(hourly.time[i]);
+            const hourLabel = i === startIdx ? 'Зараз' : `${t.getHours().toString().padStart(2, '0')}:00`;
+            let hTempRaw = hourly.temperature_2m[i];
+            if (formatSettings.temp === 'kelvin') hTempRaw += 273.15;
+            const hTemp = Math.round(hTempRaw);
+            const hCode = hourly.weather_code[i];
+            const hIsDay = hourly.is_day ? hourly.is_day[i] : 1;
+            const hPop = hourly.precipitation_probability ? hourly.precipitation_probability[i] : 0;
+
+            hourlyHtmlArray.push(`
+                <div class="hourly-item ${i === startIdx ? 'hourly-current' : ''}">
+                    <span class="hourly-time">${hourLabel}</span>
+                    <div class="hourly-icon">${getWeatherIconSvg(hCode, hIsDay, 24)}</div>
+                    <span class="hourly-temp">${hTemp}${tempSymbol}</span>
+                    ${hPop >= 15 ? `<span class="hourly-pop">💧${hPop}%</span>` : `<span class="hourly-pop empty"></span>`}
+                </div>
+            `);
+        }
+    }
+
+    // Daily 7-Day Forecast
     const dailyHtmlArray = [];
     const daysOfWeek = ['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-    
+
     for (let i = 0; i < daily.time.length; i++) {
         const dateObj = new Date(daily.time[i]);
         let dayName = daysOfWeek[dateObj.getDay()];
         if (i === 0) dayName = 'Сьогодні';
         else if (i === 1) dayName = 'Завтра';
-        
+
         let maxTempRaw = daily.temperature_2m_max[i];
         let minTempRaw = daily.temperature_2m_min[i];
-        
+
         if (formatSettings.temp === 'kelvin') {
             maxTempRaw += 273.15;
             minTempRaw += 273.15;
         }
-        
+
         const maxTemp = Math.round(maxTempRaw);
         const minTemp = Math.round(minTempRaw);
-        const desc = getWeatherDescriptionText(daily.weather_code[i]);
-        
+        const code = daily.weather_code[i];
+        const desc = getWeatherDescriptionText(code);
+        const pop = daily.precipitation_probability_max ? daily.precipitation_probability_max[i] : 0;
+
         dailyHtmlArray.push(`
             <div class="day-tile">
                 <span class="day-name">${dayName}</span>
+                <div class="day-icon">${getWeatherIconSvg(code, 1, 26)}</div>
                 <span class="day-desc">${desc}</span>
                 <div class="day-temps">
                     <span class="day-max">${maxTemp}${tempSymbol}</span>
-                    <span class="day-min" style="opacity:0.6;">${minTemp}${tempSymbol}</span>
+                    <span class="day-min">${minTemp}${tempSymbol}</span>
                 </div>
+                ${pop >= 20 ? `<span class="day-pop">💧 ${pop}%</span>` : `<span class="day-pop empty"></span>`}
             </div>
         `);
     }
 
-    // Build Tiles
-    // Використовуємо збережений повний підпис (якщо є), або fallback на старий admin
     const locationSubtitle = location.subtitle || location.admin || 'Україна';
-
     const condition = getWeatherCondition(current.weather_code);
-
     const currentConditionText = getWeatherDescriptionText(current.weather_code);
+    const weatherIcon = getWeatherIconSvg(current.weather_code, current.is_day, 42);
 
-    // Main tile has front (temp) and back (humidity/pressure)
+    // Build Complete Grid
     const html = `
-        <!-- Main Live Tile -->
-        <div class="tile tile-large ${condition.bgClass} live" id="main-live-tile">
-            <div class="tile-inner">
-                <div class="tile-front">
-                    <span class="tile-label">поточна погода</span>
+        <!-- Main Hero Tile (2x2) -->
+        <div class="tile tile-large ${condition.bgClass}">
+            <div class="hero-header">
+                <div class="hero-location">
                     <div class="city-name">${location.name}</div>
-                    <div style="font-size: 1.2rem; font-weight: 400; opacity: 0.9; margin-top: 5px;">${currentConditionText}</div>
-                    <div class="temp-huge">${currentTemp}${tempSymbol}</div>
-                    <div style="margin-top: 10px; opacity: 0.8;">${locationSubtitle}</div>
+                    <div class="location-sub">${locationSubtitle}</div>
                 </div>
-                <div class="tile-back">
-                    <span class="tile-label">додатково</span>
-                    <div style="font-size: 1.2rem; margin-bottom: 10px;">Вологість: <b>${humidity}%</b></div>
-                    <div style="font-size: 1.2rem;">Тиск: <b>${pressure} ${pressureUnit}</b></div>
-                </div>
+                <div class="hero-weather-icon">${weatherIcon}</div>
+            </div>
+            <div class="hero-body">
+                <div class="hero-condition">${currentConditionText}</div>
+                <div class="temp-huge">${currentTemp}${tempSymbol}</div>
+            </div>
+            <div class="hero-footer">
+                <div class="temp-range">Макс: <b>${todayMax}${tempSymbol}</b> &nbsp;|&nbsp; Мін: <b>${todayMin}${tempSymbol}</b></div>
+                <span class="tile-label">поточна погода</span>
             </div>
         </div>
         
-        <!-- Wind Tile -->
-        <div class="tile tile-tall tile-teal">
+        <!-- Hourly Forecast Tile (Wide 2x1) -->
+        <div class="tile tile-wide tile-dark hourly-tile" style="padding: 0;">
+            <div class="tile-header-bar">
+                <span>погодинний прогноз</span>
+                <span style="font-size: 0.75rem; opacity: 0.7;">на 16 годин</span>
+            </div>
+            <div class="hourly-container">
+                ${hourlyHtmlArray.join('')}
+            </div>
+        </div>
+        
+        <!-- Wind Tile (1x1) -->
+        <div class="tile tile-square tile-teal">
+            <div class="tile-content">
+                <div class="wind-content">
+                    <div class="wind-speed-box">
+                        <div class="data-value">${windSpeed}</div>
+                        <div class="data-unit">${windUnitLabel}</div>
+                        ${windGusts ? `<div class="wind-gusts">пориви до ${windGusts}</div>` : ''}
+                    </div>
+                    <div class="compass-box">
+                        <div class="compass-icon" style="transform: rotate(${windDirectionDeg}deg);" title="Напрямок: ${windDirectionDeg}°">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 19 21 12 17 5 21 12 2"/></svg>
+                        </div>
+                        <div class="compass-dir">${windDirectionText}</div>
+                    </div>
+                </div>
+            </div>
             <span class="tile-label">вітер</span>
-            <div style="margin-top: auto; margin-bottom: auto;">
-                <div class="data-value">${windSpeed}</div>
-                <div class="data-unit">${windUnitLabel}</div>
-            </div>
         </div>
         
-        <!-- Feels Like Tile -->
-        <div class="tile tile-tall tile-orange">
-            <span class="tile-label">відчувається як</span>
-            <div style="margin-top: auto; margin-bottom: auto;">
+        <!-- Feels Like Tile (1x1) -->
+        <div class="tile tile-square tile-orange">
+            <div class="tile-content">
                 <div class="data-value">${feelsLikeTemp}${tempSymbol}</div>
                 <div class="data-unit">${tempUnitLabel}</div>
+                <div class="metric-subtitle">
+                    ${feelsLikeTemp === currentTemp ? 'Відповідає температурі' : (feelsLikeTemp < currentTemp ? `На ${Math.abs(currentTemp - feelsLikeTemp)}° нижче через вітер` : `На ${feelsLikeTemp - currentTemp}° тепліше`)}
+                </div>
             </div>
+            <span class="tile-label">відчувається як</span>
         </div>
         
-        <!-- Daily Forecast Tile -->
-        <div class="tile tile-full tile-purple" style="padding: 0;">
-            <div style="padding: 16px 16px 8px 16px; font-weight: 600; font-size: 0.85rem; text-transform: lowercase;">прогноз на 7 днів</div>
+        <!-- Sun & Day Cycle Tile (1x1) -->
+        <div class="tile tile-square tile-dark">
+            <div class="tile-content">
+                <div class="sun-cycle-content">
+                    <div class="sun-row">
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFB300" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.95 16A6 6 0 0 0 8.05 16"/><path d="M2 16h20"/></svg>
+                            Схід
+                        </span>
+                        <span>${sunriseTime}</span>
+                    </div>
+                    <div class="sun-row">
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF7043" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10V2"/><path d="m4.93 10.93 1.41-1.41"/><path d="M2 18h20"/><path d="M20 18a8 8 0 0 0-16 0"/><path d="m19.07 10.93-1.41-1.41"/></svg>
+                            Захід
+                        </span>
+                        <span>${sunsetTime}</span>
+                    </div>
+                </div>
+            </div>
+            <span class="tile-label">сонце та день</span>
+        </div>
+
+        <!-- UV Index Tile (1x1) -->
+        <div class="tile tile-square tile-purple">
+            <div class="tile-content">
+                <div class="data-value">${Math.round(uvVal)}</div>
+                <div class="badge-tag">${uvInfo.text}</div>
+                <div class="metric-subtitle">${uvInfo.desc}</div>
+            </div>
+            <span class="tile-label">уф-індекс</span>
+        </div>
+
+        <!-- Humidity Tile (1x1) -->
+        <div class="tile tile-square tile-blue">
+            <div class="tile-content">
+                <div class="data-value">${humidity}%</div>
+                <div class="metric-subtitle">${humidityStatus}</div>
+            </div>
+            <span class="tile-label">вологість</span>
+        </div>
+
+        <!-- Pressure Tile (1x1) -->
+        <div class="tile tile-square tile-teal">
+            <div class="tile-content">
+                <div class="data-value" style="font-size: 2.1rem;">${pressure}</div>
+                <div class="data-unit">${pressureUnit}</div>
+                <div class="metric-subtitle">${pressureStatus}</div>
+            </div>
+            <span class="tile-label">тиск</span>
+        </div>
+        
+        <!-- Daily 7-Day Forecast Tile (Full 4x1) -->
+        <div class="tile tile-full tile-dark" style="padding: 0;">
+            <div class="tile-header-bar">
+                <span>прогноз на 7 днів</span>
+                <span style="font-size: 0.75rem; opacity: 0.7;">детальний тижневий огляд</span>
+            </div>
             <div class="daily-container">
                 ${dailyHtmlArray.join('')}
             </div>
@@ -529,14 +664,6 @@ function renderWeather(location, data) {
 
 function startLiveTiles() {
     clearInterval(liveTileInterval);
-    const mainTile = document.getElementById('main-live-tile');
-
-    if (mainTile) {
-        mainTile.style.cursor = 'pointer';
-        mainTile.addEventListener('click', () => {
-            mainTile.classList.toggle('flipped');
-        });
-    }
 }
 
 // --- Notifications Logic ---
@@ -691,6 +818,67 @@ function getWeatherDescriptionText(code) {
     if (code === 85 || code === 86) return 'Сильний сніг';
     if (code >= 95 && code <= 99) return 'Гроза';
     return 'Невідомо';
+}
+
+function getWeatherIconSvg(code, isDay = 1, size = 24) {
+    if (code === 0 || code === 1) {
+        if (isDay) {
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+        } else {
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+        }
+    }
+    if (code === 2 || code === 3) {
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`;
+    }
+    if (code === 45 || code === 48) {
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9h14M3 13h18M7 17h10"/></svg>`;
+    }
+    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) {
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>`;
+    }
+    if ((code >= 71 && code <= 77) || code === 85 || code === 86) {
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10 20-1.25-2.5L6 18l1.75-2.25L7 13.5l2.5 1.25L12 12l2.5 2.75 2.5-1.25-.75 2.25L18 18l-2.75-.5L14 20l-2-2.25Z"/><path d="M12 2v20"/><path d="m17 7-5 5-5-5"/><path d="m17 17-5-5-5 5"/></svg>`;
+    }
+    if (code >= 95 && code <= 99) {
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="m13 15-3 5h4l-2 5"/></svg>`;
+    }
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`;
+}
+
+function getWindDirection(deg) {
+    const directions = ['Пн', 'Пн-Сх', 'Сх', 'Пд-Сх', 'Пд', 'Пд-Зх', 'Зх', 'Пн-Зх'];
+    const index = Math.round(((deg %= 360) < 0 ? deg + 360 : deg) / 45) % 8;
+    return directions[index];
+}
+
+function getUvDescription(uv) {
+    if (uv <= 2) return { text: 'Низький', desc: 'Захист не потрібен' };
+    if (uv <= 5) return { text: 'Помірний', desc: 'Бажано головний убір' };
+    if (uv <= 7) return { text: 'Високий', desc: 'Використовуйте SPF' };
+    if (uv <= 10) return { text: 'Дуже вис.', desc: 'Уникайте сонця в полудень' };
+    return { text: 'Екстрем.', desc: 'Залишайтеся в тіні' };
+}
+
+function getHumidityDescription(hum) {
+    if (hum < 35) return 'Сухе повітря';
+    if (hum <= 65) return 'Комфортна вологість';
+    if (hum <= 80) return 'Підвищена вологість';
+    return 'Дуже сиро';
+}
+
+function getPressureDescription(hpa) {
+    if (hpa < 1008) return 'Знижений тиск';
+    if (hpa <= 1018) return 'Нормальний тиск';
+    return 'Підвищений тиск';
+}
+
+function formatTimeShort(isoString) {
+    if (!isoString) return '--:--';
+    const date = new Date(isoString);
+    const h = date.getHours().toString().padStart(2, '0');
+    const m = date.getMinutes().toString().padStart(2, '0');
+    return `${h}:${m}`;
 }
 
 function showError(message) {

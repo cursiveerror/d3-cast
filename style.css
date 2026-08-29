@@ -2,7 +2,7 @@
     --text-main: #FFFFFF;
     --text-muted: rgba(255, 255, 255, 0.7);
     
-    /* Metro UI Colors */
+    /* Metro UI Base Colors */
     --metro-blue: #2D89EF;
     --metro-green: #00A300;
     --metro-red: #E51400;
@@ -13,7 +13,7 @@
     
     --font-heading: 'Montserrat', sans-serif;
     --font-main: 'Inter', 'Segoe UI', sans-serif;
-    --gap: 8px;
+    --gap: 10px;
 }
 
 * {
@@ -25,81 +25,90 @@
 body {
     font-family: var(--font-main);
     color: var(--text-main);
-    background-color: var(--bg-main);
+    background-color: var(--bg-main, #0b1118);
+    background-image: var(--bg-gradient, none);
+    background-attachment: fixed;
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    padding: 40px 20px;
+    padding: clamp(16px, 3vh, 36px) clamp(16px, 3vw, 40px);
     -webkit-font-smoothing: antialiased;
     transition: background-color 0.8s ease, color 0.8s ease;
 }
 
-/* --- Погодні теми (Dynamic Metro Themes) --- */
+/* --- Погодні теми з атмосферним підсвічуванням (Dynamic Ambient Metro Themes) --- */
 
-/* weather-clear (ясно/сонячно) — яскраві, глибокі сині відтінки */
+/* weather-clear (ясно/сонячно) */
 body.weather-clear {
-    --bg-main: #004e92;
+    --bg-main: #0a192f;
+    --bg-gradient: radial-gradient(circle at 20% 15%, rgba(0, 120, 215, 0.5) 0%, rgba(10, 25, 47, 0.95) 65%, #050d1a 100%);
     --metro-blue: #0078D7;
-    --metro-teal: #00CC6A;
+    --metro-teal: #00B294;
     --metro-orange: #FF8C00;
     --metro-purple: #744DA9;
-    --metro-dark: #003666;
+    --metro-dark: #0f2038;
 }
 
-/* weather-cloudy (похмуро) — матові, сіро-сині, приглушені тони */
+/* weather-cloudy (похмуро) */
 body.weather-cloudy {
-    --bg-main: #37474F;
+    --bg-main: #1f2833;
+    --bg-gradient: radial-gradient(circle at 30% 20%, rgba(84, 110, 122, 0.5) 0%, rgba(31, 40, 51, 0.95) 70%, #11171d 100%);
     --metro-blue: #546E7A;
     --metro-teal: #455A64;
     --metro-orange: #78909C;
     --metro-purple: #607D8B;
-    --metro-dark: #263238;
+    --metro-dark: #232d36;
 }
 
-/* weather-rain (дощ) — дуже темні, глибокі нічні/сизі кольори */
+/* weather-rain (дощ) */
 body.weather-rain {
-    --bg-main: #1A237E;
+    --bg-main: #0d1527;
+    --bg-gradient: radial-gradient(circle at 25% 20%, rgba(40, 53, 147, 0.55) 0%, rgba(13, 21, 39, 0.95) 70%, #060a14 100%);
     --metro-blue: #283593;
     --metro-teal: #303F9F;
     --metro-orange: #3949AB;
     --metro-purple: #3F51B5;
-    --metro-dark: #0F1446;
+    --metro-dark: #121c33;
 }
 
-/* weather-storm (гроза) — майже чорний фон з різкими неоновими акцентами */
+/* weather-storm (гроза) */
 body.weather-storm {
-    --bg-main: #0a0a0a;
+    --bg-main: #0b0716;
+    --bg-gradient: radial-gradient(circle at 35% 15%, rgba(101, 31, 255, 0.4) 0%, rgba(11, 7, 22, 0.95) 70%, #040208 100%);
     --metro-blue: #311B92;
     --metro-teal: #4527A0;
-    --metro-orange: #00E676; /* Неоновий акцент */
+    --metro-orange: #00E676;
     --metro-purple: #651FFF;
-    --metro-dark: #000000;
+    --metro-dark: #140d24;
 }
 
-/* weather-snow (сніг) — холодні, блідо-блакитні та білі відтінки */
+/* weather-snow (сніг) */
 body.weather-snow {
-    --bg-main: #E0F7FA;
-    --metro-blue: #81D4FA;
-    --metro-teal: #4DD0E1;
-    --metro-orange: #29B6F6;
-    --metro-purple: #B3E5FC;
-    --metro-dark: #B2EBF2;
-    --text-main: #004D40; /* Темний текст для світлого фону */
+    --bg-main: #102636;
+    --bg-gradient: radial-gradient(circle at 20% 20%, rgba(77, 208, 225, 0.4) 0%, rgba(16, 38, 54, 0.95) 70%, #08141d 100%);
+    --metro-blue: #0288D1;
+    --metro-teal: #0097A7;
+    --metro-orange: #00ACC1;
+    --metro-purple: #5C6BC0;
+    --metro-dark: #163347;
+    --text-main: #FFFFFF;
 }
 
-/* is-night (нічний режим) — робимо фон чорним, щоб не било по очах, але зберігаємо яскравість плиток (справжній Metro UI стиль) */
+/* is-night (нічний режим) */
 body.is-night {
-    --bg-main: #000000 !important;
-    --metro-dark: #111111 !important;
-    --text-main: #F2F2F2 !important; /* Трохи приглушений білий, але не сірий */
+    --bg-main: #06080c;
+    --bg-gradient: radial-gradient(circle at 50% 10%, rgba(20, 35, 60, 0.65) 0%, rgba(6, 8, 12, 0.98) 75%, #020305 100%) !important;
+    --metro-dark: #131922 !important;
+    --text-main: #F4F6F8 !important;
 }
 
 .app-container {
     width: 100%;
-    max-width: 800px;
+    max-width: 1380px;
+    margin: auto 0;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: clamp(16px, 2.5vh, 28px);
     z-index: 10;
 }
 
@@ -108,18 +117,18 @@ body.is-night {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
 }
 
 .header-left {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 16px;
 }
 
 h1 {
     font-family: var(--font-heading);
-    font-size: 2.2rem;
+    font-size: clamp(1.8rem, 2.8vw, 2.4rem);
     font-weight: 700;
     letter-spacing: -1px;
 }
@@ -132,7 +141,7 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 5px;
+    padding: 6px;
     transition: transform 0.2s;
 }
 .icon-btn:active {
@@ -144,9 +153,9 @@ h1 {
     border: 2px solid var(--text-main);
     color: var(--text-main);
     font-family: var(--font-main);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 600;
-    padding: 8px 16px;
+    padding: 8px 20px;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -172,19 +181,20 @@ h1 {
 .overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
     z-index: 99;
 }
 .sidebar {
     position: fixed;
     top: 0; left: 0; bottom: 0;
-    width: 300px;
+    width: 320px;
     background: var(--metro-dark);
     z-index: 100;
-    padding: 20px;
+    padding: 24px;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-    box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.6);
 }
 .sidebar.open {
     transform: translateX(0);
@@ -225,163 +235,452 @@ h1 {
 /* Typography & Titles */
 .section-title {
     font-family: var(--font-heading);
-    font-size: 2rem;
+    font-size: clamp(1.6rem, 2.5vw, 2.1rem);
     font-weight: 400;
     margin-bottom: 20px;
 }
 
-/* Metro Grid */
+.metro-container {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+#notifications-section,
+#format-section {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+/* ==========================================================================
+   Metro Grid System
+   ========================================================================== */
 .metro-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: 150px;
+    grid-auto-rows: minmax(170px, auto);
     gap: var(--gap);
 }
-@media (max-width: 600px) {
+
+@media (max-width: 1024px) {
     .metro-grid {
         grid-template-columns: repeat(2, 1fr);
-    }
-    .temp-huge {
-        font-size: 4.5rem;
+        grid-auto-rows: minmax(160px, auto);
     }
 }
 
-/* Live Tile Flip Animation Setup */
+@media (max-width: 640px) {
+    .metro-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: minmax(140px, auto);
+    }
+    .tile-square {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+    .tile-large, .tile-wide {
+        grid-column: span 2;
+    }
+}
+
+/* Base Tile Styling */
 .tile {
     position: relative;
     color: var(--text-main);
-    cursor: default;
-    perspective: 1000px; /* Для 3D фліпу */
-}
-
-/* Внутрішній контейнер для фліпу */
-.tile-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.8s;
-    transform-style: preserve-3d;
-}
-
-/* Клас, який додається JS для перегортання */
-.tile.flipped .tile-inner {
-    transform: rotateX(180deg);
-}
-
-.tile-front, .tile-back {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    padding: 16px;
+    padding: 18px 20px;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
 }
 
-.tile-back {
-    transform: rotateX(180deg);
-    background-color: inherit;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+.tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
-/* Make live tile container transparent so background doesn't show during flip */
-.tile.live {
-    background-color: transparent !important;
-}
-
-/* Standard tile padding (if not live) */
-.tile:not(.live) {
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.1s;
-}
-.tile:not(.live):active {
-    transform: scale(0.98);
-}
-
-.tile-label {
-    position: absolute;
-    bottom: 12px;
-    left: 16px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: lowercase;
-}
-
-/* Tile Sizes */
+/* Tile Grid Spans */
 .tile-large { grid-column: span 2; grid-row: span 2; }
 .tile-wide { grid-column: span 2; grid-row: span 1; }
 .tile-tall { grid-column: span 1; grid-row: span 2; }
+.tile-square { grid-column: span 1; grid-row: span 1; }
 .tile-full { grid-column: 1 / -1; grid-row: span 1; }
 
-/* Colors */
+/* Tile Colors */
 .tile-blue { background-color: var(--metro-blue); }
-.tile-blue .tile-front, .tile-blue .tile-back { background-color: var(--metro-blue); }
 .tile-green { background-color: var(--metro-green); }
-.tile-green .tile-front, .tile-green .tile-back { background-color: var(--metro-green); }
 .tile-red { background-color: var(--metro-red); }
 .tile-orange { background-color: var(--metro-orange); }
-.tile-orange .tile-front, .tile-orange .tile-back { background-color: var(--metro-orange); }
 .tile-purple { background-color: var(--metro-purple); }
 .tile-teal { background-color: var(--metro-teal); }
-.tile-teal .tile-front, .tile-teal .tile-back { background-color: var(--metro-teal); }
 .tile-dark { background-color: var(--metro-dark); }
 
-/* Tile Content specific */
-.temp-huge {
-    font-size: 6rem;
-    font-weight: 300;
-    line-height: 1;
-    margin-top: 10px;
-}
-.city-name {
-    font-family: var(--font-heading);
-    font-size: 1.5rem;
+/* Tile Label - Natural Flow at the Bottom */
+.tile-label {
+    display: block;
+    font-size: 0.78rem;
     font-weight: 600;
-    margin-top: 5px;
-}
-.data-value {
-    font-size: 2.5rem;
-    font-weight: 300;
-    line-height: 1.2;
-    margin-top: 10px;
-}
-.data-unit {
-    font-size: 1rem;
-    font-weight: 400;
-    opacity: 0.8;
+    text-transform: lowercase;
+    opacity: 0.75;
+    letter-spacing: 0.5px;
+    margin-top: auto;
+    padding-top: 10px;
+    line-height: 1;
 }
 
-/* Daily Forecast Container */
-.daily-container {
+/* ==========================================================================
+   Hero Tile Specific Styles
+   ========================================================================== */
+.hero-header {
     display: flex;
-    gap: var(--gap);
-    overflow-x: auto;
-    height: 100%;
-    padding-bottom: 5px;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
 }
-.daily-container::-webkit-scrollbar { height: 6px; }
-.daily-container::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); }
-.day-tile {
-    min-width: 120px;
-    background-color: rgba(255, 255, 255, 0.1);
+
+.hero-location {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.city-name {
+    font-family: var(--font-heading);
+    font-size: clamp(1.4rem, 2vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.location-sub {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    line-height: 1.25;
+}
+
+.hero-weather-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.95;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
+
+.hero-body {
+    display: flex;
+    flex-direction: column;
+    margin-top: 8px;
+    margin-bottom: auto;
+}
+
+.hero-condition {
+    font-size: 1.15rem;
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+.temp-huge {
+    font-size: clamp(4.2rem, 6.2vw, 6.2rem);
+    font-weight: 300;
+    line-height: 0.95;
+    margin-top: 6px;
+    letter-spacing: -2px;
+}
+
+.hero-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.hero-footer .tile-label {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.temp-range {
+    font-size: 0.88rem;
+    opacity: 0.9;
+}
+
+/* ==========================================================================
+   Square Metric Tile Styles
+   ========================================================================== */
+.tile-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex: 1;
+}
+
+.data-value {
+    font-size: clamp(2.3rem, 3.1vw, 2.9rem);
+    font-weight: 300;
+    line-height: 1.1;
+}
+
+.data-unit {
+    font-size: 0.95rem;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-top: 1px;
+}
+
+.metric-subtitle {
+    font-size: 0.82rem;
+    opacity: 0.85;
+    margin-top: 6px;
+    line-height: 1.3;
+}
+
+.badge-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.22);
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+    width: fit-content;
+}
+
+/* ==========================================================================
+   Hourly Forecast Tile
+   ========================================================================== */
+.tile-header-bar {
+    padding: 14px 18px 8px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: lowercase;
+    opacity: 0.9;
+    letter-spacing: 0.5px;
+}
+
+.hourly-container {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    flex: 1;
+    padding: 4px 14px 12px 14px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+.hourly-container::-webkit-scrollbar { height: 5px; }
+.hourly-container::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
+
+.hourly-item {
+    min-width: 70px;
+    flex: 0 0 auto;
+    background: rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 4px;
+    transition: background 0.2s, transform 0.15s;
+}
+.hourly-item:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateY(-2px);
+}
+.hourly-item.hourly-current {
+    background: rgba(255, 255, 255, 0.2);
+    border-bottom: 2px solid #FFFFFF;
+}
+.hourly-time {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    font-weight: 600;
+}
+.hourly-icon {
+    margin: 4px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.hourly-temp {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+.hourly-pop {
+    font-size: 0.72rem;
+    color: #90CAF9;
+    font-weight: 600;
+    min-height: 14px;
+}
+.hourly-pop.empty {
+    visibility: hidden;
+}
+
+/* ==========================================================================
+   Wind & Compass Tile
+   ========================================================================== */
+.wind-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: auto;
+}
+.wind-speed-box {
+    display: flex;
+    flex-direction: column;
+}
+.compass-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.compass-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    background: rgba(0,0,0,0.15);
+}
+.compass-dir {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.wind-gusts {
+    font-size: 0.78rem;
+    opacity: 0.85;
+    margin-top: 4px;
+}
+
+/* ==========================================================================
+   Sun & Day Cycle Tile
+   ========================================================================== */
+.sun-cycle-content {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: auto;
+}
+.sun-row {
+    display: flex;
     align-items: center;
-    padding: 10px;
+    justify-content: space-between;
+    font-size: 0.92rem;
+}
+.sun-row span:first-child {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.9;
+}
+.sun-row span:last-child {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* ==========================================================================
+   7-Day Forecast Tile
+   ========================================================================== */
+.daily-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--gap);
+    flex: 1;
+    padding: 0 14px 14px 14px;
+}
+
+.day-tile {
+    min-width: 0;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 8px;
+    text-align: center;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+.day-tile:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+    transform: translateY(-2px);
+}
+.day-name { 
+    font-size: 0.95rem; 
+    font-weight: 700; 
+    margin-bottom: 2px; 
+}
+.day-icon {
+    margin: 6px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.day-desc { 
+    font-size: 0.8rem; 
+    font-weight: 400; 
+    opacity: 0.85; 
+    margin-bottom: 6px; 
+    min-height: 28px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    line-height: 1.2;
     text-align: center;
 }
-.day-name { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
-.day-desc { font-size: 0.8rem; font-weight: 400; opacity: 0.8; margin-bottom: 8px; min-height: 28px; display: flex; align-items: center; }
-.day-temps { display: flex; gap: 8px; font-size: 1.2rem; font-weight: 600; }
+.day-temps { 
+    display: flex; 
+    gap: 8px; 
+    font-size: 1.15rem; 
+    font-weight: 600; 
+}
 .day-max { color: var(--text-main); }
-.day-min { color: var(--text-muted); }
+.day-min { color: var(--text-muted); opacity: 0.7; }
+.day-pop {
+    font-size: 0.75rem;
+    color: #90CAF9;
+    font-weight: 600;
+    margin-top: 4px;
+    min-height: 16px;
+}
+.day-pop.empty {
+    visibility: hidden;
+}
 
-/* Search Box */
+@media (max-width: 860px) {
+    .daily-container {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 10px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .daily-container::-webkit-scrollbar { height: 5px; }
+    .daily-container::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
+    .day-tile {
+        min-width: 110px;
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+    }
+}
+
+/* ==========================================================================
+   Search Box & Other Sections
+   ========================================================================== */
 .search-tile {
     display: flex;
     height: 60px;
@@ -477,7 +776,6 @@ h1 {
     width: 100%;
 }
 
-/* Custom arrow for select */
 .metro-select {
     appearance: none;
     -webkit-appearance: none;
@@ -493,7 +791,6 @@ h1 {
     border-color: var(--metro-blue);
 }
 
-/* Робимо стандартну чорну іконку годинника білою */
 .metro-input::-webkit-calendar-picker-indicator {
     filter: invert(1);
     cursor: pointer;
@@ -542,6 +839,7 @@ h1 {
 .loader-wrapper {
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     grid-column: 1 / -1; grid-row: span 2; background-color: var(--metro-dark);
+    min-height: 300px;
 }
 .metro-loader { display: flex; gap: 8px; margin-bottom: 20px; }
 .dot {
