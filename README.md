@@ -1,28 +1,46 @@
 <div align="center">
-  <img src="assets/banner.svg" alt="D3 Cast Banner" width="100%">
-  <br><br>
-
-  [![License: MIT](https://img.shields.io/badge/License-MIT-00ABA9?style=for-the-badge)](https://github.com/cursiveerror/d3-cast/blob/main/LICENSE)
-  [![GitHub stars](https://img.shields.io/github/stars/cursiveerror/d3-cast?style=for-the-badge&color=E3A21A)](https://github.com/cursiveerror/d3-cast/stargazers)
-  [![PWA Ready](https://img.shields.io/badge/PWA-Ready-2D89EF?style=for-the-badge&logo=pwa)](https://cursiveerror.github.io/d3-cast/)
-  [![Open-Meteo](https://img.shields.io/badge/API-Open--Meteo-00A300?style=for-the-badge)](https://open-meteo.com/)
-  <br><br>
-  [![Відкрити дашборд](https://img.shields.io/badge/Відкрити_Сайт-2D89EF?style=for-the-badge&logo=google-chrome&logoColor=white)](https://cursiveerror.github.io/d3-cast/)
+  <img src="assets/banner.svg" alt="D3 Cast Architecture" width="100%">
 </div>
 
-<hr>
+<br>
 
-## 🌟 Про проєкт
+<div align="center">
+  <a href="https://github.com/cursiveerror/d3-cast/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/LICENSE-MIT-000000?style=for-the-badge&logo=opensourceinitiative&logoColor=FFFFFF" alt="License" />
+  </a>
+  <a href="https://cursiveerror.github.io/d3-cast/">
+    <img src="https://img.shields.io/badge/DEPLOYMENT-LIVE-000000?style=for-the-badge&logo=vercel&logoColor=FFFFFF" alt="Deployment" />
+  </a>
+  <a href="https://open-meteo.com/">
+    <img src="https://img.shields.io/badge/DATA-OPEN_METEO-000000?style=for-the-badge&logo=json&logoColor=FFFFFF" alt="API" />
+  </a>
+</div>
 
-**D3 Cast** - це некомерційний web-додаток для тих, хто цінує чистий дизайн та швидкість. Жодної реклами, складних бекендів чи зайвого візуального шуму. Лише точні метеодані, загорнуті у строгий плитковий інтерфейс, який динамічно адаптується до того, що зараз відбувається за вашим вікном.
+<br><br>
 
-Проєкт створено з акцентом на продуктивність: він не використовує важких JS-фреймворків, покладаючись виключно на нативні веб-технології.
+## ARCHITECTURE OVERVIEW
 
-## ✨ Головні фішки
+**D3 Cast** is a strictly client-side weather dashboard designed for absolute minimal latency and zero computational overhead. The application bypasses modern heavy JavaScript frameworks, relying entirely on native browser APIs and Vanilla JavaScript to deliver real-time meteorological data.
 
-- 🎨 **Динамічне середовище**: Кольорова палітра інтерфейсу автоматично змінюється залежно від погодних умов (сонячно, дощ, шторм, сніг) та часу доби (світла/темна тема для дня і ночі).
-- ⚡ **Zero Dependencies**: Жодних сторонніх бібліотек чи фреймворків для UI. Тільки чистий Vanilla JS та сучасний CSS.
-- 📱 **PWA (Progressive Web App)**: Встановлюйте D3 Cast на головний екран смартфона чи ПК. Працює як повноцінний нативний додаток.
-- 🔔 **Розумні Push-сповіщення**: Отримуйте локальні нагадування перевірити прогноз у зручний для вас час (реалізовано через Notifications API).
-- ⚙️ **Гнучка кастомізація**: Метрична чи імперська система? Обирайте самі. Підтримка налаштувань температури, швидкості вітру та атмосферного тиску.
-- 💾 **Повна автономність**: Усі ваші налаштування та обрані локації зберігаються виключно у вашому браузері (`localStorage`). Ніякого збору даних.
+It utilizes the Open-Meteo API for raw data ingestion and dynamically recalculates the UI color palette based on current environmental conditions and temporal states (day/night cycles).
+
+---
+
+## CORE SPECIFICATIONS
+
+| Component | Implementation Detail |
+| :--- | :--- |
+| **Runtime** | Browser Native (Vanilla JS, CSS3, HTML5) |
+| **Data Provider** | Open-Meteo API |
+| **State Management** | Local Storage API |
+| **Notification Engine**| Service Worker + Notifications API |
+| **Distribution** | Progressive Web App (PWA) Standard |
+
+---
+
+## TECHNICAL FEATURES
+
+- **Dynamic Environment Rendering:** The UI matrix automatically adjusts its hex-color palette corresponding to real-time weather codes (clear, rain, storm, snow) and local timezone calculations.
+- **Zero-Dependency Core:** 0 bytes of external UI libraries or NPM dependencies. Native CSS variables drive the entire state transformation.
+- **Background Processes:** Localized push notifications execute via the browser's native API, prompting data refresh intervals according to user-defined parameters.
+- **Data Persistence:** All configurations (imperial/metric units, stored geographical coordinates, UI preferences) are sandboxed securely within the client's `localStorage`. No remote telemetry is collected.
